@@ -1,8 +1,8 @@
-import express from "express";
+import {Router} from "express";
 
 import auth from "../controllers/auth.controller";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/signup", auth.getSignUp);
 router.post("/signup", auth.postSignUp);
