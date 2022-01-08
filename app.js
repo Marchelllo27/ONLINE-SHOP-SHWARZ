@@ -40,7 +40,7 @@ app.use(productsRoutes);
 app.use(errorsHandler.errorsMiddleware);
 app.use(errorsHandler.serverErrorsMiddleware);
 
-// Start NodeJs server only if connecting to the database is done.
+// Start NodeJs server only if connecting to the database is established.
 db.connectToDatabase()
   .then(() => {
     const port = process.env.PORT || 3000;

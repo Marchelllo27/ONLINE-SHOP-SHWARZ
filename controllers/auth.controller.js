@@ -3,11 +3,11 @@ import util from "../util/authentication";
 import validation from "../util/validationUserInput";
 
 //  SIGN UP
-export const getSignup = (req, res) => {
+const getSignUp = (req, res) => {
   res.render("customer/auth/signup");
 };
 
-export const signUp = async (req, res, next) => {
+const postSignUp = async (req, res, next) => {
   const {
     email,
     password,
@@ -49,11 +49,11 @@ export const signUp = async (req, res, next) => {
 };
 
 //  LOGIN
-export const getLogin = (req, res) => {
+const getLogin = (req, res) => {
   res.render("customer/auth/login");
 };
 
-export const login = async (req, res) => {
+const postLogin = async (req, res) => {
   const user = new User(req.body.email, req.body.password);
   let existingUser;
   try {
@@ -79,7 +79,15 @@ export const login = async (req, res) => {
 };
 
 // LOG OUT
-export const logout = (req, res) => {
+const logOut = (req, res) => {
   util.destroyUserAuthSession(req);
   res.redirect("/login");
+};
+
+export default {
+  getSignUp,
+  postSignUp,
+  getLogin,
+  postLogin,
+  logOut,
 };
