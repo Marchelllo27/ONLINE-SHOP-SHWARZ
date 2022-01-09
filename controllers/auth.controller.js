@@ -1,10 +1,24 @@
 import User from "../models/user.model";
-import util from "../util/authentication";
+import authUtil from "../util/authentication";
 import validation from "../util/validationUserInput";
+import sessionUtil from "../util/session-flash";
 
 //  SIGN UP
 const getSignUp = (req, res) => {
-  res.render("customer/auth/signup");
+  let sessionData = sessionUtil.getSessionData(req);
+
+  if (!sessionData) {
+    sessionData = {
+      email: "",
+      confirmedEmail: "",
+      password: "",
+      fullname: "",
+      street: "",
+      postal: "",
+      city: "",
+    };
+  }
+  res.render("customer/auth/signup", { inputData: sessionData });
 };
 
 const postSignUp = async (req, res, next) => {
@@ -18,6 +32,16 @@ const postSignUp = async (req, res, next) => {
     city,
   } = req.body;
 
+  const userInputs = {
+    email: email,
+    confirmedEmail: confirmedEmail,
+    password: password,
+    fullname: fullname,
+    street: street,
+    postal: postal,
+    city: city,
+  };
+
   if (
     !validation.userInputsAreValid(
       email,
@@ -27,9 +51,21 @@ const postSignUp = async (req, res, next) => {
       postal,
       city
     ) ||
-    !validation.isEmailConfirmer(email, confirmedEmail)
+    !validation.isEmailConfirmed(email, confirmedEmail)
   ) {
-    return res.redirect("/signup");
+    //if user inputs aren't valid we save userInputs and error message to session.
+    sessionUtil.flashDataToSession(
+      req,
+      {
+        errorMessage:
+          "Please check your input.Password must be at least 6 characters long, postal code must be 5 characters long",
+        ...userInputs,
+      },
+      () => {
+        res.redirect("/signup");
+      }
+    );
+    return;
   }
 
   const user = new User(email, password, fullname, street, postal, city);
@@ -37,7 +73,17 @@ const postSignUp = async (req, res, next) => {
   try {
     const userExist = await user.userExistAlready();
     if (userExist) {
-      return res.redirect("/signup");
+      sessionUtil.flashDataToSession(
+        req,
+        {
+          errorMessage: "User exist already!Try logging in instead!",
+          ...userInputs,
+        },
+        () => {
+          res.redirect("/signup");
+        }
+      );
+      return;
     }
 
     await user.signup();
@@ -50,7 +96,16 @@ const postSignUp = async (req, res, next) => {
 
 //  LOGIN
 const getLogin = (req, res) => {
-  res.render("customer/auth/login");
+  let sessionData = sessionUtil.getSessionData(req);
+
+  if (!sessionData) {
+    sessionData = {
+      email: "",
+      password: "",
+    };
+  }
+
+  res.render("customer/auth/login", { inputData: sessionData });
 };
 
 const postLogin = async (req, res) => {
@@ -62,25 +117,36 @@ const postLogin = async (req, res) => {
     next(error);
   }
 
+  const sessionErrorData = {
+    errorMessage:
+      "Invalid credentials - please double-check your email and password!",
+    email: user.email,
+    password: user.password,
+  };
+
   if (!existingUser) {
-    res.redirect("/login");
+    sessionUtil.flashDataToSession(req, sessionErrorData, () => {
+      res.redirect("/login");
+    });
     return;
   }
 
   const validUserPassword = await user.comparePassword(existingUser.password);
   if (!validUserPassword) {
-    res.redirect("/login");
+    sessionUtil.flashDataToSession(req, sessionErrorData, () => {
+      res.redirect("/login");
+    });
     return;
   }
 
-  util.createUserSession(req, existingUser, () => {
+  authUtil.createUserSession(req, existingUser, () => {
     res.redirect("/");
   });
 };
 
 // LOG OUT
 const logOut = (req, res) => {
-  util.destroyUserAuthSession(req);
+  authUtil.destroyUserAuthSession(req);
   res.redirect("/login");
 };
 

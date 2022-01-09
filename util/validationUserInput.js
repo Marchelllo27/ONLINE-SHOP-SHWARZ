@@ -3,7 +3,7 @@ const isEmpty = value => {
 };
 
 const userCredentialsAreValid = (email, password) => {
-  return email && email.contains("@") && password.trim().length >= 6;
+  return email && email.includes("@") && password.trim().length >= 6;
 };
 
 const userInputsAreValid = (
@@ -20,11 +20,11 @@ const userInputsAreValid = (
   );
 };
 
-const isEmailConfirmer = (email, confirmedEmail) => {
+const isEmailConfirmed = (email, confirmedEmail) => {
   return email === confirmedEmail;
 };
 
 export default {
   userInputsAreValid,
-  isEmailConfirmer,
+  isEmailConfirmed,
 };
