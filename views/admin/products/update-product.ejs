@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('../../shared/includes/head', {title: "Update Product"}) %>
+  <link rel="stylesheet" href="/styles/forms.css" />
+  <body>
+    <%- include('../../shared/includes/header') %>
+    <main>
+      <h1>Update Product</h1>
+      <%- include('includes/product-form', { submitPath: "/admin/products/" +
+      product.id, product: product}) %>
+    </main>
+  </body>
+</html>
