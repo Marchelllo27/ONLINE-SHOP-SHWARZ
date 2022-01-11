@@ -13,6 +13,7 @@ import checkAuthMiddleware from "./middlewares/check-auth";
 import baseRoutes from "./routes/base.routes";
 import authRoutes from "./routes/auth.routes";
 import productsRoutes from "./routes/products.routes";
+import adminRoutes from "./routes/admin.routes";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static("public"));
+app.use("/products/assets",express.static("product-data"));
 app.use(express.urlencoded({ extended: false }));
 
 const sessionConfig = createSessionConfig();
@@ -35,6 +37,7 @@ app.use(checkAuthMiddleware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(productsRoutes);
+app.use('/admin', adminRoutes);
 
 //Error middleware
 app.use(errorsHandler.errorsMiddleware);
