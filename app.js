@@ -9,13 +9,15 @@ import db from "./data/database";
 import csrfTokenMiddleware from "./middlewares/csrf-token";
 import errorsHandler from "./middlewares/error-handler";
 import checkAuthMiddleware from "./middlewares/check-auth";
-import protectAdminRoutes from "./middlewares/protect-routes"
+import protectAdminRoutes from "./middlewares/protect-routes";
+import cartMiddleware from "./middlewares/cart";
 //import routes
 import baseRoutes from "./routes/base.routes";
 import authRoutes from "./routes/auth.routes";
 import productsRoutes from "./routes/products.routes";
 import adminRoutes from "./routes/admin.routes";
-
+import cartRoutes from "./routes/cart.routes";
+import orderRoutes from "./routes/orders.routes";
 
 const app = express();
 const sessionConfig = createSessionConfig();
@@ -27,12 +29,14 @@ app.set("views", path.join(__dirname, "views"));
 
 // SERVE STATIC FILES
 app.use(express.static("public"));
-app.use("/products/assets",express.static("product-data"));
+app.use("/products/assets", express.static("product-data"));
 
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.use(expressSession(sessionConfig));
 app.use(csrf());
+app.use(cartMiddleware);
 app.use(csrfTokenMiddleware);
 app.use(checkAuthMiddleware);
 
@@ -40,8 +44,10 @@ app.use(checkAuthMiddleware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(productsRoutes);
+app.use("/cart", cartRoutes);
 app.use(protectAdminRoutes);
-app.use('/admin', adminRoutes);
+app.use("/orders", orderRoutes)
+app.use("/admin", adminRoutes);
 
 //Error middleware
 app.use(errorsHandler.errorsMiddleware);
