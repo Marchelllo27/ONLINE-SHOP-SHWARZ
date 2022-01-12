@@ -42,7 +42,36 @@ const getUpdateProduct = async (req, res, next) => {
   }
 };
 
-const updateProduct = () => {};
+const updateProduct = async (req, res, next) => {
+  const product = new Product({
+    ...req.body,
+    _id: req.params.id,
+  });
+
+  if (req.file) {
+    product.replaceImage(req.file.filename);
+  }
+
+  try {
+    await product.save();
+  } catch (error) {
+    next(error);
+    return;
+  }
+
+  res.redirect("/admin/products");
+};
+
+const deleteProduct = async (req, res, next) => {
+  let product;
+  try {
+    product = await Product.findById(req.params.id);
+    await product.remove();
+  } catch (error) {
+    return next(error);
+  }
+  res.json({ message: "Deleted product" });
+};
 
 export default {
   getProducts,
@@ -50,4 +79,5 @@ export default {
   createNewProduct,
   getUpdateProduct,
   updateProduct,
+  deleteProduct,
 };
