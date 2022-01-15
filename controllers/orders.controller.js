@@ -1,5 +1,11 @@
+import Stripe from "stripe";
+
 import Order from "../models/order.model";
 import User from "../models/user.model";
+
+const stripe = Stripe(
+  "sk_test_51KIBUjHpX6LnEMrKajNWq4qUZo6dUhC6BvLthlUPho89LocPrFkVm1vIXZffFbVAC948JNTc4oNR8QkKa0OyCe7L00spiUkQ97"
+);
 
 const getOrders = async (req, res, next) => {
   try {
@@ -28,10 +34,39 @@ const addOrder = async (req, res, next) => {
   }
 
   req.session.cart = null;
-  res.redirect("/orders");
+
+  const session = await stripe.checkout.sessions.create({
+    line_items: cart.items.map(item => {
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.product.title,
+          },
+          unit_amount: +item.product.price.toFixed(2) * 100,
+        },
+        quantity: item.quantity,
+      };
+    }),
+    mode: "payment",
+    success_url: `http://localhost:3000/orders/success`,
+    cancel_url: `http://localhost:3000/orders/failure`,
+  });
+
+  res.redirect(303, session.url);
+};
+
+const getSuccess = (req, res) => {
+  res.render("customer/orders/success");
+};
+
+const getFailure = (req, res) => {
+  res.render("customer/orders/failure");
 };
 
 export default {
   addOrder,
   getOrders,
+  getSuccess,
+  getFailure,
 };
