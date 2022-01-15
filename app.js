@@ -11,6 +11,7 @@ import errorsHandler from "./middlewares/error-handler";
 import checkAuthMiddleware from "./middlewares/check-auth";
 import protectAdminRoutes from "./middlewares/protect-routes";
 import cartMiddleware from "./middlewares/cart";
+import updateCartPricesMiddleware from "./middlewares/update-cart-prices";
 //import routes
 import baseRoutes from "./routes/base.routes";
 import authRoutes from "./routes/auth.routes";
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use(expressSession(sessionConfig));
 app.use(csrf());
 app.use(cartMiddleware);
+app.use(updateCartPricesMiddleware);
 app.use(csrfTokenMiddleware);
 app.use(checkAuthMiddleware);
 
@@ -46,7 +48,7 @@ app.use(authRoutes);
 app.use(productsRoutes);
 app.use("/cart", cartRoutes);
 app.use(protectAdminRoutes);
-app.use("/orders", orderRoutes)
+app.use("/orders", orderRoutes);
 app.use("/admin", adminRoutes);
 
 //Error middleware

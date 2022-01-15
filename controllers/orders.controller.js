@@ -1,8 +1,13 @@
 import Order from "../models/order.model";
 import User from "../models/user.model";
 
-const getOrders = (req, res) => {
-  res.render("customer/orders/all-orders");
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.findAllForUser(res.locals.uid);
+    res.render("customer/orders/all-orders", { orders: orders });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const addOrder = async (req, res, next) => {

@@ -1,3 +1,4 @@
+import mongodb from "mongodb";
 import db from "../data/database";
 
 class Order {
@@ -12,12 +13,61 @@ class Order {
       month: "long",
       year: "numeric",
     });
-    this.id - orderId;
+    this.id = orderId;
+  }
+
+  static transformOrderDocument(orderDoc) {
+    return new Order(
+      orderDoc.productData,
+      orderDoc.userData,
+      orderDoc.status,
+      orderDoc.date,
+      orderDoc._id
+    );
+  }
+
+  static transformOrderDocuments(orderDocs) {
+    return orderDocs.map(this.transformOrderDocument);
+  }
+
+  static async findAll() {
+    const orders = await db
+      .getDb()
+      .collection("orders")
+      .find()
+      .sort({ _id: -1 })
+      .toArray();
+    return this.transformOrderDocuments(orders);
+  }
+
+  static async findAllForUser(userId) {
+    const uid = new mongodb.ObjectId(userId);
+
+    const orders = await db
+      .getDb()
+      .collection("orders")
+      .find({ "userData._id": uid })
+      .sort({ _id: -1 })
+      .toArray();
+    return this.transformOrderDocuments(orders);
+  }
+
+  static async findById(orderId) {
+    const order = await db
+      .getDb()
+      .collection("orders")
+      .findOne({ _id: new mongodb.ObjectId(orderId) })
+    return this.transformOrderDocument(order);
   }
 
   save() {
     if (this.id) {
       //updating order
+      const orderId = new mongodb.ObjectId(this.id);
+      return db
+        .getDb()
+        .collection("orders")
+        .updateOne({ _id: orderId }, { $set: { status: this.status } });
     } else {
       const orderDocument = {
         userData: this.userData,
