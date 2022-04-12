@@ -10,9 +10,10 @@ async function updateOrder(event) {
   const newStatus = formData.get("status");
   const orderId = formData.get("orderid");
   const csrfToken = formData.get("_csrf");
+  console.log(orderId)
+  console.log(newStatus)
 
   let response;
-
   try {
     response = await fetch(`/admin/orders/${orderId}`, {
       method: "PATCH",
@@ -25,6 +26,7 @@ async function updateOrder(event) {
       },
     });
   } catch (error) {
+    console.log(error)
     alert("Something went wrong - could not update order status.");
     return;
   }

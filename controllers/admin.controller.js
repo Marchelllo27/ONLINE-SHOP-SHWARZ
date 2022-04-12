@@ -90,7 +90,6 @@ const updateOrder = async (req, res, next) => {
   const newStatus = req.body.newStatus;
   try {
     const order = await Order.findById(orderId);
-    console.log(order);
     order.status = newStatus;
 
     await order.save();

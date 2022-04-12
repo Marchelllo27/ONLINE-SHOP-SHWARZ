@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import mongodb from "mongodb";
-import db from "../data/database";
+import usersCollection from "../data/users.schema.js";
+// import db from "../data/database";
 
 class User {
   constructor(email, password, fullname, street, postal, city) {
@@ -15,16 +16,13 @@ class User {
   }
 
   static findById(userId) {
-    const uid = new mongodb.ObjectId(userId);
+    // const uid = new mongodb.ObjectId(userId);
 
-    return db
-      .getDb()
-      .collection("users")
-      .findOne({ _id: uid }, { projection: {password: 0} });
+    return usersCollection.findById(userId).select({ password: 0 });
   }
 
   getUserWithSameEmail() {
-    return db.getDb().collection("users").findOne({ email: this.email });
+    return usersCollection.findOne({ email: this.email });
   }
 
   async userExistAlready() {
@@ -40,7 +38,7 @@ class User {
   async signup() {
     const hachedPass = await bcrypt.hash(this.password, 12);
 
-    await db.getDb().collection("users").insertOne({
+    await usersCollection.create({
       email: this.email,
       password: hachedPass,
       name: this.fullname,

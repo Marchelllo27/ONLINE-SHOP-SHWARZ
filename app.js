@@ -1,10 +1,12 @@
 import express from "express";
 import path from "path";
 import csrf from "csurf";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
 import expressSession from "express-session";
 
 import createSessionConfig from "./config/session";
-import db from "./data/database";
+// import db from "./data/database";
 //import middlewares
 import csrfTokenMiddleware from "./middlewares/csrf-token";
 import errorsHandler from "./middlewares/error-handler";
@@ -19,6 +21,19 @@ import productsRoutes from "./routes/products.routes";
 import adminRoutes from "./routes/admin.routes";
 import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/orders.routes";
+
+dotenv.config();
+
+// Connection to MongoDB database
+
+mongoose
+  .connect(process.env.MONGO_URI, {})
+  .then(() => {
+    console.log("MongoDB est connecté");
+  })
+  .catch(err => {
+    console.log(err);
+  });
 
 const app = express();
 const sessionConfig = createSessionConfig();
@@ -56,14 +71,19 @@ app.use(errorsHandler.errorsMiddleware);
 app.use(errorsHandler.serverErrorsMiddleware);
 
 // Start NodeJs server only if connecting to the database is established.
-db.connectToDatabase()
-  .then(() => {
-    const port = process.env.PORT || 3000;
-    app.listen(port, () =>
-      console.log(`The server is running on http://localhost:${port}`)
-    );
-  })
-  .catch(err => {
-    console.log("Failed to connect to the database!");
-    console.log(err);
-  });
+// db.connectToDatabase()
+//   .then(() => {
+//     const port = process.env.PORT || 3000;
+//     app.listen(port, () =>
+//       console.log(`The server is running on http://localhost:${port}`)
+//     );
+//   })
+//   .catch(err => {
+//     console.log("Failed to connect to the database!");
+//     console.log(err);
+//   });
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port} `);
+});

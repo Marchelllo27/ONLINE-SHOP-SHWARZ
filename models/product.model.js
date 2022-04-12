@@ -1,4 +1,5 @@
-import db from "../data/database";
+// import db from "../data/database";
+import productsCollection from "../data/products.schema";
 import mongodb from "mongodb";
 
 class Product {
@@ -15,18 +16,8 @@ class Product {
   }
 
   static async findById(productId) {
-    let prodId;
-    try {
-      prodId = new mongodb.ObjectId(productId);
-    } catch (error) {
-      error.code = 404;
-      throw error;
-    }
+    const product = await productsCollection.findById(productId);
 
-    const product = await db
-      .getDb()
-      .collection("products")
-      .findOne({ _id: prodId });
     if (!product) {
       const error = new Error("Could not find product with provided id");
       error.code = 404;
@@ -36,7 +27,7 @@ class Product {
   }
 
   static async findAll() {
-    const products = await db.getDb().collection("products").find().toArray();
+    const products = await productsCollection.find({});
 
     return products.map(productDocument => {
       return new Product(productDocument);
@@ -48,11 +39,9 @@ class Product {
       return new mongodb.ObjectId(id);
     });
 
-    const products = await db
-      .getDb()
-      .collection("products")
-      .find({ _id: { $in: productIds } })
-      .toArray();
+    const products = await productsCollection.find({
+      _id: { $in: productIds },
+    });
 
     return products.map(function (productDocument) {
       return new Product(productDocument);
@@ -80,12 +69,12 @@ class Product {
         delete productData.image;
       }
 
-      await db
-        .getDb()
-        .collection("products")
-        .updateOne({ _id: productId }, { $set: productData });
+      await productsCollection.updateOne(
+        { _id: productId },
+        { $set: productData }
+      );
     } else {
-      await db.getDb().collection("products").insertOne(productData);
+      await productsCollection.create(productData);
     }
   }
 
@@ -95,8 +84,9 @@ class Product {
   }
 
   async remove() {
-    const productId = new mongodb.ObjectId(this.id);
-    await db.getDb().collection("products").deleteOne({ _id: productId });
+    // const productId = new mongodb.ObjectId(this.id);
+    // await db.getDb().collection("products").deleteOne({ _id: productId });
+    await productsCollection.findByIdAndDelete(this.id)
   }
 }
 
