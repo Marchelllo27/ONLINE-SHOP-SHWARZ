@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import expressSession from "express-session";
 
 import createSessionConfig from "./config/session";
-// import db from "./data/database";
+
 //import middlewares
 import csrfTokenMiddleware from "./middlewares/csrf-token";
 import errorsHandler from "./middlewares/error-handler";
@@ -25,7 +25,6 @@ import orderRoutes from "./routes/orders.routes";
 dotenv.config();
 
 // Connection to MongoDB database
-
 mongoose
   .connect(process.env.MONGO_URI, {})
   .then(() => {
@@ -69,19 +68,6 @@ app.use("/admin", adminRoutes);
 //Error middleware
 app.use(errorsHandler.errorsMiddleware);
 app.use(errorsHandler.serverErrorsMiddleware);
-
-// Start NodeJs server only if connecting to the database is established.
-// db.connectToDatabase()
-//   .then(() => {
-//     const port = process.env.PORT || 3000;
-//     app.listen(port, () =>
-//       console.log(`The server is running on http://localhost:${port}`)
-//     );
-//   })
-//   .catch(err => {
-//     console.log("Failed to connect to the database!");
-//     console.log(err);
-//   });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

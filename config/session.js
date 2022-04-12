@@ -5,7 +5,7 @@ const createSessionStore = () => {
   const MongoDBStore = mongoDbStore(expressSession);
 
   const store = new MongoDBStore({
-    uri: "mongodb+srv://marchelllo:marchelllo27@cluster0.w3yei.mongodb.net/carsale?retryWrites=true&w=majority",
+    uri: process.env.MONGO_URI,
     databaseName: "carsale",
     collection: "sessions",
   });
@@ -26,5 +26,3 @@ const createSessionConfig = () => {
 };
 
 export default createSessionConfig;
-
-// "mongodb://localhost:27017"
