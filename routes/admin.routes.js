@@ -4,9 +4,7 @@ import imageUploadMiddleware from "../middlewares/image-upload";
 
 const router = Router();
 //path starts /admin/...
-router.get("/products", (req, res ) => {
-
-});
+router.get("/products", adminController.getProducts);
 
 router.get("/products/new", adminController.getNewProduct);
 
